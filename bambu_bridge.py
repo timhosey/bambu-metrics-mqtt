@@ -18,6 +18,7 @@ mqttc = mqtt.Client(protocol=mqtt.MQTTv311)
 mqttc.connect(MQTT_BROKER, MQTT_PORT)
 
 printer = bl.Printer(BAMBU_IP, ACCESS_CODE, SERIAL)
+print(f"Connecting to {BAMBU_IP} with serial {SERIAL} and access code {ACCESS_CODE}")
 printer.connect()
 
 while True:
@@ -35,10 +36,11 @@ while True:
         time_remaining = printer.get_time()
 
         # wait for first values to be ready
-        print("Waiting for printer telemetry to initialize...")
-        if bed_temp is None or bed_temp == '0.0':
-            print("Printer not ready, retrying...")
-            continue
+        # print("Waiting for printer telemetry to initialize...")
+        # if bed_temp is None:
+        #   print("Printer not ready, retrying...")
+        #   time.sleep(POLL_INTERVAL)
+        #   continue
 
         print("Attempting to publish telemetry data...")
         mqttc.publish("bambu/bed_temp", bed_temp)
@@ -57,11 +59,15 @@ while True:
         print(f"Print speed: {print_speed}")
         mqttc.publish("bambu/time_remaining", time_remaining)
         print(f"Time remaining: {time_remaining}")
-        wifi_num = int(str(wifi_signal_strength).replace("dBm","").strip())
+        wifi_str = str(wifi_signal_strength).replace("dBm", "").strip()
+        try:
+            wifi_num = int(wifi_str)
+        except (ValueError, TypeError):
+            wifi_num = 0
         mqttc.publish("bambu/wifi_signal_strength", wifi_num)
         print(f"Wi-fi signal: {wifi_signal_strength}")
-        # mqttc.publish("bambu/current_file", current_file)
-        # print(f"Current file: {current_file}")
+        mqttc.publish("bambu/current_file", current_file)
+        print(f"Current file: {current_file}")
         light_num = 1 if light_state == "on" else 0
         mqttc.publish("bambu/light_state", light_num)
         print(f"Light state: {light_state}")
