@@ -10,8 +10,8 @@ BAMBU_IP = os.environ.get("BAMBU_IP")
 ACCESS_CODE = os.environ.get("ACCESS_CODE")
 SERIAL = os.environ.get("SERIAL")
 MQTT_BROKER = os.environ.get("MQTT_BROKER")
-MQTT_PORT = int(os.environ.get("MQTT_PORT", 1883))
-POLL_INTERVAL = int(os.environ.get("POLL_INTERVAL", 10))
+MQTT_PORT = int(os.environ.get("MQTT_PORT", "1883"))
+POLL_INTERVAL = int(os.environ.get("POLL_INTERVAL", "10"))
 
 # Setup MQTT
 mqttc = mqtt.Client(protocol=mqtt.MQTTv311)
