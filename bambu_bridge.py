@@ -69,22 +69,13 @@ while True:
 
         print("Setting Prometheus gauge metrics...", flush=True)
         bed_temp_gauge.set(float(bed_temp) if bed_temp is not None else 0.0)
-        print(f"Bed temp: {bed_temp}", flush=True)
         nozzle_temp_gauge.set(float(nozzle_temp) if nozzle_temp is not None else 0.0)
-        print(f"Nozzle temp: {nozzle_temp}", flush=True)
         chamber_temp_gauge.set(float(chamber_temp) if chamber_temp is not None else 0.0)
-        print(f"Chamber temp: {chamber_temp}", flush=True)
         current_layer_gauge.set(int(current_layer) if current_layer is not None else 0)
-        print(f"Current layer: {current_layer}", flush=True)
         total_layer_gauge.set(int(total_layer) if total_layer is not None else 0)
-        print(f"Total layers: {total_layer}", flush=True)
         job_progress_gauge.set(float(job_progress) if job_progress is not None else 0.0)
-        print(f"Job progress: {job_progress}", flush=True)
         print_speed_gauge.set(float(print_speed) if print_speed is not None else 0.0)
-        print(f"Print speed: {print_speed}", flush=True)
         time_remaining_gauge.set(float(time_remaining) if time_remaining is not None else 0.0)
-        print(f"Time remaining: {time_remaining}", flush=True)
-        
         try:
             wifi_num = int(str(wifi_signal_strength).replace("dBm","").strip())
         except Exception:
@@ -93,7 +84,12 @@ while True:
         print(f"Wi-fi signal: {wifi_num}", flush=True)
         light_num = 1 if light_state == "on" else 0
         light_state_gauge.set(light_num)
+        print(f"Temps: Bed - {bed_temp}; Nozzle - {nozzle_temp}; Chamber - {chamber_temp}", flush=True)
         print(f"Light state: {light_state}", flush=True)
+        print(f"Layer: {current_layer}/{total_layer}; {job_progress}% done.", flush=True)
+        print(f"Print speed: {print_speed}; Time remaining: {time_remaining} seconds", flush=True)
+        print(f"Nozzle: Type - {nozzle_type}; Diameter - {nozzle_diameter}mm")
+        print(f"Tasks and files: Type - {print_type}; Filename - {file_name}; Subtask - {subtask_name}; Gcode - {gcode_file}")
         print("Done setting metrics.", flush=True)
     except Exception as e:
         print(f"Error polling printer: {e}", flush=True)
