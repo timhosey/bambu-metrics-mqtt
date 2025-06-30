@@ -10,4 +10,5 @@ services:
       - ACCESS_CODE=12345678
       - SERIAL=01P00A123456789
       - POLL_INTERVAL=10
+      - PROMETHEUS_PORT=8000
     network_mode: host

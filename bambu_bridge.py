@@ -22,7 +22,7 @@ time_remaining_gauge = Gauge('bambu_time_remaining', 'Bambu Time Remaining')
 wifi_signal_strength_gauge = Gauge('bambu_wifi_signal_strength', 'Bambu WiFi Signal Strength (dBm)')
 light_state_gauge = Gauge('bambu_light_state', 'Bambu Light State (1=on, 0=off)')
 
-start_http_server(8000)
+start_http_server(int(os.environ.get("PROMETHEUS_PORT", "8000")))
 
 printer = bl.Printer(BAMBU_IP, ACCESS_CODE, SERIAL)
 printer.connect()
