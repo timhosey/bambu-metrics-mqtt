@@ -27,6 +27,11 @@ start_http_server(int(os.environ.get("PROMETHEUS_PORT", "8000")))
 printer = bl.Printer(BAMBU_IP, ACCESS_CODE, SERIAL)
 printer.connect()
 
+# wait for first values to be ready
+print("Waiting for printer telemetry to initialize...")
+while printer.mqtt_client_ready == False:
+    print("Printer not ready, retrying...")
+
 while True:
     try:
         bed_temp = printer.get_bed_temperature()
@@ -40,12 +45,6 @@ while True:
         current_layer = printer.current_layer_num()
         total_layer = printer.total_layer_num()
         time_remaining = printer.get_time()
-
-        # wait for first values to be ready
-        print("Waiting for printer telemetry to initialize...")
-        if bed_temp is None or bed_temp == '0.0':
-            print("Printer not ready, retrying...")
-            continue
 
         print("Setting Prometheus gauge metrics...")
         bed_temp_gauge.set(float(bed_temp))
@@ -76,4 +75,5 @@ while True:
         print("Done setting metrics.")
     except Exception as e:
         print(f"Error polling printer: {e}")
+        printer.disconnect()
     time.sleep(POLL_INTERVAL)
