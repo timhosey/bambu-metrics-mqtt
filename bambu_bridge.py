@@ -27,6 +27,12 @@ print_speed_gauge = Gauge('bambu_print_speed', 'Bambu Print Speed')
 time_remaining_gauge = Gauge('bambu_time_remaining', 'Bambu Time Remaining')
 wifi_signal_strength_gauge = Gauge('bambu_wifi_signal_strength', 'Bambu WiFi Signal Strength (dBm)')
 light_state_gauge = Gauge('bambu_light_state', 'Bambu Light State (1=on, 0=off)')
+nozzle_type_gauge = Gauge('bambu_nozzle_type', 'Bambu Nozzle Type')
+nozzle_diameter_gauge = Gauge('bambu_nozzle_diameter', 'Bambu Nozzle Diameter')
+print_type_gauge = Gauge('bambu_print_type', 'Bambu Print Type')
+subtask_name_gauge = Gauge('bambu_subtask_name', 'Bambu Subtask Name')
+file_name_gauge = Gauge('bambu_file_name', 'Bambu File Name')
+gcode_file_gauge = Gauge('bambu_gcode_file', 'Bambu GCode File')
 
 start_http_server(int(os.environ.get("PROMETHEUS_PORT", "8000")))
 
@@ -54,6 +60,12 @@ while True:
         current_layer = printer.current_layer_num()
         total_layer = printer.total_layer_num()
         time_remaining = printer.get_time()
+        nozzle_type = printer.nozzle_type()
+        nozzle_diameter = printer.nozzle_diameter()
+        print_type = printer.print_type()
+        subtask_name = printer.subtask_name()
+        file_name = printer.get_file_name()
+        gcode_file = printer.gcode_file()
 
         print("Setting Prometheus gauge metrics...", flush=True)
         bed_temp_gauge.set(float(bed_temp) if bed_temp is not None else 0.0)
@@ -72,6 +84,7 @@ while True:
         print(f"Print speed: {print_speed}", flush=True)
         time_remaining_gauge.set(float(time_remaining) if time_remaining is not None else 0.0)
         print(f"Time remaining: {time_remaining}", flush=True)
+        
         try:
             wifi_num = int(str(wifi_signal_strength).replace("dBm","").strip())
         except Exception:
