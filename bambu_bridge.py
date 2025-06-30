@@ -3,8 +3,7 @@ import time
 import bambulabs_api as bl
 from dataclasses import asdict
 import paho.mqtt.client as mqtt
-
-# import os
+import os
 
 BAMBU_IP = os.environ.get("BAMBU_IP")
 ACCESS_CODE = os.environ.get("ACCESS_CODE")
