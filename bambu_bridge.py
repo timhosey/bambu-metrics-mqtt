@@ -1,28 +1,28 @@
 #!/usr/bin/env python3
 import time
-import bambulabs_api as bl
-from dataclasses import asdict
-import paho.mqtt.client as mqtt
 import os
+import bambulabs_api as bl
+from prometheus_client import start_http_server, Gauge
 
+# Customize these:
 BAMBU_IP = os.environ.get("BAMBU_IP")
 ACCESS_CODE = os.environ.get("ACCESS_CODE")
 SERIAL = os.environ.get("SERIAL")
-MQTT_BROKER = os.environ.get("MQTT_BROKER")
-MQTT_PORT = int(os.environ.get("MQTT_PORT", 1883))
-POLL_INTERVAL = int(os.environ.get("POLL_INTERVAL", 10))
+POLL_INTERVAL = int(os.environ.get("POLL_INTERVAL", "10"))
 
-# Customize these:
-# BAMBU_IP = "192.168.0.76"
-# ACCESS_CODE = "16845074"
-# SERIAL = "01P00A433000756"
-# MQTT_BROKER = "192.168.0.8"
-# MQTT_PORT = 1883
-# POLL_INTERVAL = 10  # seconds
+# Define Prometheus Gauges
+bed_temp_gauge = Gauge('bambu_bed_temp', 'Bambu Bed Temperature')
+nozzle_temp_gauge = Gauge('bambu_nozzle_temp', 'Bambu Nozzle Temperature')
+chamber_temp_gauge = Gauge('bambu_chamber_temp', 'Bambu Chamber Temperature')
+current_layer_gauge = Gauge('bambu_current_layer', 'Bambu Current Layer Number')
+total_layer_gauge = Gauge('bambu_total_layer', 'Bambu Total Layer Number')
+job_progress_gauge = Gauge('bambu_job_progress', 'Bambu Job Progress Percentage')
+print_speed_gauge = Gauge('bambu_print_speed', 'Bambu Print Speed')
+time_remaining_gauge = Gauge('bambu_time_remaining', 'Bambu Time Remaining')
+wifi_signal_strength_gauge = Gauge('bambu_wifi_signal_strength', 'Bambu WiFi Signal Strength (dBm)')
+light_state_gauge = Gauge('bambu_light_state', 'Bambu Light State (1=on, 0=off)')
 
-# Setup MQTT
-mqttc = mqtt.Client(protocol=mqtt.MQTTv311)
-mqttc.connect(MQTT_BROKER, MQTT_PORT)
+start_http_server(8000)
 
 printer = bl.Printer(BAMBU_IP, ACCESS_CODE, SERIAL)
 printer.connect()
@@ -47,32 +47,33 @@ while True:
             print("Printer not ready, retrying...")
             continue
 
-        print("Attempting to publish telemetry data...")
-        mqttc.publish("bambu/bed_temp", bed_temp)
+        print("Setting Prometheus gauge metrics...")
+        bed_temp_gauge.set(float(bed_temp))
         print(f"Bed temp: {bed_temp}")
-        mqttc.publish("bambu/nozzle_temp", nozzle_temp)
+        nozzle_temp_gauge.set(float(nozzle_temp))
         print(f"Nozzle temp: {nozzle_temp}")
-        mqttc.publish("bambu/chamber_temp", chamber_temp)
+        chamber_temp_gauge.set(float(chamber_temp))
         print(f"Chamber temp: {chamber_temp}")
-        mqttc.publish("bambu/current_layer", current_layer)
+        current_layer_gauge.set(int(current_layer))
         print(f"Current layer: {current_layer}")
-        mqttc.publish("bambu/total_layer", total_layer)
+        total_layer_gauge.set(int(total_layer))
         print(f"Total layers: {total_layer}")
-        mqttc.publish("bambu/job_progress", job_progress)
+        job_progress_gauge.set(float(job_progress))
         print(f"Job progress: {job_progress}")
-        mqttc.publish("bambu/print_speed", print_speed)
+        print_speed_gauge.set(float(print_speed))
         print(f"Print speed: {print_speed}")
-        mqttc.publish("bambu/time_remaining", time_remaining)
+        time_remaining_gauge.set(float(time_remaining))
         print(f"Time remaining: {time_remaining}")
-        wifi_num = int(str(wifi_signal_strength).replace("dBm","").strip())
-        mqttc.publish("bambu/wifi_signal_strength", wifi_num)
+        try:
+            wifi_num = int(str(wifi_signal_strength).replace("dBm","").strip())
+        except Exception:
+            wifi_num = 0
+        wifi_signal_strength_gauge.set(wifi_num)
         print(f"Wi-fi signal: {wifi_signal_strength}")
-        # mqttc.publish("bambu/current_file", current_file)
-        # print(f"Current file: {current_file}")
         light_num = 1 if light_state == "on" else 0
-        mqttc.publish("bambu/light_state", light_num)
+        light_state_gauge.set(light_num)
         print(f"Light state: {light_state}")
-        print("Done publishing.")
+        print("Done setting metrics.")
     except Exception as e:
         print(f"Error polling printer: {e}")
     time.sleep(POLL_INTERVAL)
