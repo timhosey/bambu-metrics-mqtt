@@ -84,16 +84,17 @@ while True:
         print(f"Wi-fi signal: {wifi_num}", flush=True)
         light_num = 1 if light_state == "on" else 0
         light_state_gauge.set(light_num)
+
+        file_name_gauge.labels(filename=file_name if file_name else "").set(1)
+        gcode_file_gauge.labels(gcode=gcode_file if gcode_file else "").set(1)
+        print_type_gauge.labels(ptype=print_type if print_type else "").set(1)
+        subtask_name_gauge.labels(subtask=subtask_name if subtask_name else "").set(1)
         print(f"Temps: Bed - {bed_temp}; Nozzle - {nozzle_temp}; Chamber - {chamber_temp}", flush=True)
         print(f"Light state: {light_state}", flush=True)
         print(f"Layer: {current_layer}/{total_layer}; {job_progress}% done.", flush=True)
         print(f"Print speed: {print_speed}; Time remaining: {time_remaining} minutes", flush=True)
         print(f"Nozzle: Type - {nozzle_type}; Diameter - {nozzle_diameter}mm")
-        print(f"Tasks and files: Type - {print_type}; Filename - {file_name}; Subtask - {subtask_name}; Gcode - {gcode_file}")
-        file_name_gauge.labels(filename=file_name if file_name else "unknown").set(1)
-        gcode_file_gauge.labels(gcode=gcode_file if gcode_file else "unknown").set(1)
-        print_type_gauge.labels(ptype=print_type if print_type else "unknown").set(1)
-        subtask_name_gauge.labels(subtask=subtask_name if subtask_name else "unknown").set(1)
+        print(f"Tasks and files: Type - {print_type}; Filename - {file_name}; Subtask - {subtask_name}; Gcode - {gcode_file}"
         print("Done setting metrics.", flush=True)
     except Exception as e:
         print(f"Error polling printer: {e}", flush=True)
