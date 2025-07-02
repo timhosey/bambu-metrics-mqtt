@@ -2,6 +2,8 @@
 
 This project provides a lightweight Python-based exporter that collects telemetry data from a Bambu Labs P1S 3D printer and exposes it via a native Prometheus `/metrics` HTTP endpoint. This allows the printer’s status and telemetry (bed temperature, nozzle temperature, job progress, and more) to be scraped directly by Prometheus and visualized in Grafana for advanced monitoring.
 
+![Example Dashboard](./img/dashboard.png)
+
 ---
 
 ## Features
